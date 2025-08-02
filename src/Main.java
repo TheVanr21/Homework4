@@ -4,15 +4,19 @@ import java.util.concurrent.BlockingQueue;
 
 public class Main {
 
-    public static BlockingQueue<String> queueForA = new ArrayBlockingQueue<>(100);
-    public static BlockingQueue<String> queueForB = new ArrayBlockingQueue<>(100);
-    public static BlockingQueue<String> queueForC = new ArrayBlockingQueue<>(100);
+    public static final int QUEUE_SIZE = 100;
+    public static final int TEXT_QUANTITY = 10_000;
+    public static final int TEXT_SIZE = 100_000;
+
+    public static BlockingQueue<String> queueForA = new ArrayBlockingQueue<>(QUEUE_SIZE);
+    public static BlockingQueue<String> queueForB = new ArrayBlockingQueue<>(QUEUE_SIZE);
+    public static BlockingQueue<String> queueForC = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
     public static void main(String[] args) throws InterruptedException {
         new Thread(
                 () -> {
-                    for (int i = 0; i < 10_000; i++) {
-                        String text = generateText("abc", 100_000);
+                    for (int i = 0; i < TEXT_QUANTITY; i++) {
+                        String text = generateText("abc", TEXT_SIZE);
                         try {
                             queueForA.put(text);
                             queueForB.put(text);
@@ -40,14 +44,14 @@ public class Main {
     private static Thread createMaxCharThread(char target, BlockingQueue<String> queue) {
         return new Thread(
                 () -> {
-                    StringBuilder maxCountString = new StringBuilder();
+                    String maxCountString = "";
                     int maxCount = 0;
-                    for (int i = 0; i < 10_000; i++) {
+                    for (int i = 0; i < TEXT_QUANTITY; i++) {
                         try {
                             String text = queue.take();
                             int count = count(target, text);
                             if (count > maxCount) {
-                                maxCountString.replace(0, maxCountString.length(), text);
+                                maxCountString = text;
                                 maxCount = count;
                             }
                         } catch (InterruptedException e) {
